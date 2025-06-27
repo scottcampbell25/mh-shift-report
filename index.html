@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MH Automation Daily Shift Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #0078d4;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .section {
+            padding: 25px 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section h2 {
+            color: #323130;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #605e5c;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary {
+            background: #0078d4;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #106ebe;
+        }
+        
+        .btn-success {
+            background: #107c10;
+            color: white;
+            font-size: 18px;
+            padding: 15px 40px;
+            margin: 30px auto;
+            display: block;
+        }
+        
+        .btn-success:hover {
+            background: #0e6e0e;
+        }
+        
+        /* Safety styles */
+        .safety-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle-switch.active {
+            background: #0078d4;
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(26px);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .safety-incident {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+        }
+        
+        .safety-images-preview img {
+            max-width: 150px;
+            max-height: 150px;
+            border: 2px solid #d83b01;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .safety-images-preview img:hover {
+            transform: scale(1.1);
+        }
+        
+        .remove-image {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #d83b01;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .image-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        /* Yield Report styles */
+        .paste-area {
+            border: 3px dashed #0078d4;
+            background: #f0f8ff;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            min-height: 200px;
+            position: relative;
+        }
+        
+        .paste-area.has-image {
+            border-style: solid;
+            background: white;
+            padding: 10px;
+        }
+        
+        .paste-area img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .paste-instructions {
+            color: #0078d4;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .yield-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .yield-table th {
+            background-color: #9999cc;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #7d7db8;
+        }
+        
+        .yield-table td {
+            padding: 10px;
+            border: 1px solid #d1d1d1;
+            background: white;
+        }
+        
+        .yield-table tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+        
+        .yield-table input,
+        .yield-table textarea {
+            width: 100%;
+            border: none;
+            padding: 5px;
+            font-size: 14px;
+            background: transparent;
+        }
+        
+        .yield-table textarea {
+            resize: vertical;
+            min-height: 40px;
+        }
+        
+        .quantity-column {
+            width: 80px;
+            text-align: center;
+        }
+        
+        /* Enhanced Pass Down Styles */
+        .pass-down-item {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .equipment-selection-box {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #bee5eb;
+        }
+        
+        .equipment-selection-box h4 {
+            margin: 0 0 20px 0;
+            color: #004085;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .section-divider {
+            border: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #dee2e6, transparent);
+            margin: 25px 0;
+        }
+        
+        .auto-populated-section {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .issue-details-section {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .section-label {
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        /* Improved form inputs */
+        .form-group input[readonly] {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+            color: #495057;
+            cursor: not-allowed;
+        }
+        
+        .form-group select {
+            background-color: white;
+            border: 2px solid #ced4da;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group select:hover {
+            border-color: #0078d4;
+        }
+        
+        .form-group select:focus {
+            border-color: #0078d4;
+            box-shadow: 0 0 0 0.2rem rgba(0,120,212,0.25);
+            outline: none;
+        }
+        
+        .cvs-select {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .priority select[value="critical"] {
+            background-color: #fff5f5;
+            color: #d83b01;
+        }
+        
+        .add-row-btn {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .add-row-btn:hover {
+            background: #106ebe;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Pass Down Specific Styles */
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .autocomplete-item:hover {
+            background: #f0f8ff;
+        }
+
+        .autocomplete-item strong {
+            color: #0078d4;
+            font-size: 14px;
+        }
+
+        .autocomplete-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        @keyframes highlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Additional Activities Table Styles */
+        .activities-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .activities-table th {
+            background-color: #9999cc;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #7d7db8;
+        }
+        
+        .activities-table td {
+            padding: 8px;
+            border: 1px solid #d1d1d1;
+            background: white;
+        }
+        
+        .activities-table tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+        
+        .activities-table input,
+        .activities-table select,
+        .activities-table textarea {
+            width: 100%;
+            border: none;
+            padding: 5px;
+            font-size: 14px;
+            background: transparent;
+        }
+        
+        .activities-table textarea {
+            resize: vertical;
+            min-height: 40px;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+        
+        .activities-table select {
+            min-width: 150px;
+        }
+        
+        .activity-hours {
+            text-align: center;
+        }
+        
+        .btn-remove {
+            background: #d83b01;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: opacity 0.2s ease;
+        }
+        
+        .btn-remove:hover {
+            background: #c13401;
+        }
+        
+        /* Line Walk Section Styles */
+        /* Equipment Checklist Styles */
+        .checklist-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checklist-item label {
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+        }
+        
+        .checklist-item:hover {
+            background: #e9ecef;
+        }
+        
+        .section-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .findings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .findings-table th {
+            background-color: #9999cc;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid #7d7db8;
+        }
+        
+        .findings-table td {
+            padding: 8px;
+            border: 1px solid #d1d1d1;
+            background: white;
+        }
+        
+        .findings-table input,
+        .findings-table select,
+        .findings-table textarea {
+            width: 100%;
+            border: none;
+            padding: 5px;
+            font-size: 14px;
+            background: transparent;
+        }
+        
+        .findings-table textarea {
+            resize: vertical;
+            min-height: 30px;
+            overflow: hidden;
+        }
+        
+        .line-walk-map {
+            text-align: center;
+            padding: 20px;
+            background: #f8f8f8;
+            border-radius: 8px;
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 0;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            /* Responsive Tables - Convert to Cards */
+            .activities-table,
+            .findings-table,
+            .yield-table {
+                display: block;
+                border: none;
+            }
+            
+            .activities-table thead,
+            .findings-table thead,
+            .yield-table thead {
+                display: none;
+            }
+            
+            .activities-table tbody,
+            .findings-table tbody,
+            .yield-table tbody {
+                display: block;
+            }
+            
+            .activities-table tr,
+            .findings-table tr,
+            .yield-table tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 15px;
+                background: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            
+            .activities-table td,
+            .findings-table td,
+            .yield-table td {
+                display: block;
+                padding: 8px 0;
+                border: none;
+                position: relative;
+                padding-left: 35%;
+            }
+            
+            .activities-table td:before,
+            .findings-table td:before,
+            .yield-table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 30%;
+                font-weight: bold;
+                color: #605e5c;
+                font-size: 13px;
+            }
+            
+            /* Specific mobile labels */
+            .activities-table tr td:nth-child(1):before { content: "Date:"; }
+            .activities-table tr td:nth-child(2):before { content: "Name:"; }
+            .activities-table tr td:nth-child(3):before { content: "Activity:"; }
+            .activities-table tr td:nth-child(4):before { content: "Start:"; }
+            .activities-table tr td:nth-child(5):before { content: "End:"; }
+            .activities-table tr td:nth-child(6):before { content: "Hours:"; }
+            .activities-table tr td:nth-child(7):before { content: "Action:"; }
+            
+            .findings-table tr td:nth-child(1):before { content: "Date:"; }
+            .findings-table tr td:nth-child(2):before { content: "Name:"; }
+            .findings-table tr td:nth-child(3):before { content: "Area:"; }
+            .findings-table tr td:nth-child(4):before { content: "Equipment:"; }
+            .findings-table tr td:nth-child(5):before { content: "Finding:"; }
+            .findings-table tr td:nth-child(6):before { content: "Status:"; }
+            
+            .yield-table tr td:nth-child(1):before { content: "Quantity:"; }
+            .yield-table tr td:nth-child(2):before { content: "Scrap:"; }
+            .yield-table tr td:nth-child(3):before { content: "Root Cause:"; }
+            
+            /* Full width inputs on mobile */
+            .activities-table input,
+            .activities-table select,
+            .activities-table textarea,
+            .findings-table input,
+            .findings-table select,
+            .findings-table textarea,
+            .yield-table input,
+            .yield-table textarea {
+                width: 100%;
+                margin-top: 5px;
+            }
+            
+            /* Adjust activity description for mobile */
+            .activities-table td:nth-child(3) {
+                padding-left: 0;
+            }
+            
+            .activities-table td:nth-child(3):before {
+                position: static;
+                display: block;
+                margin-bottom: 5px;
+            }
+            
+            /* Button adjustments */
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .btn-success {
+                width: 100%;
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            /* Equipment selection buttons */
+            #inspectionTypeDiv > div {
+                flex-direction: column;
+            }
+            
+            #inspectionTypeDiv button {
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            /* Pass down item mobile */
+            .pass-down-item {
+                padding: 15px;
+            }
+            
+            .equipment-selection-box {
+                padding: 15px;
+            }
+            
+            /* Safety paste area */
+            .safety-paste-area {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            /* Paste area */
+            .paste-area {
+                padding: 20px;
+            }
+            
+            .paste-instructions {
+                font-size: 16px;
+            }
+        }
+        
+        /* Tablet view adjustments */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MH Automation Daily Shift Report</h1>
+            <p id="currentDate"></p>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            <h3>✅ Report Submitted Successfully!</h3>
+            <p>Your report has been saved to SharePoint.</p>
+            <button class="btn btn-primary" onclick="location.reload()">Submit Another Report</button>
+        </div>
+        
+        <form id="shiftReportForm">
+            <!-- Basic Information -->
+            <div class="section">
+                <h2>Basic Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="reportDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Shift</label>
+                        <select id="shift" required>
+                            <option value="">Select Shift</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Reporter</label>
+                        <select id="reporter" required>
+                            <option value="">Select Reporter</option>
+                            <option value="Scott Campbell">Scott Campbell</option>
+                            <option value="Choice 2">Choice 2</option>
+                            <option value="Choice 3">Choice 3</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Support</label>
+                        <select id="additionalSupport">
+                            <option value="None">None</option>
+                            <option value="Connor">Connor</option>
+                            <option value="Mike">Mike</option>
+                            <option value="Sarah">Sarah</option>
+                            <option value="John">John</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Safety Section -->
+            <div class="section">
+                <h2 style="color: #d83b01;">Safety:</h2>
+                <div class="safety-toggle">
+                    <span>Nothing to Report</span>
+                    <div class="toggle-switch" id="safetyToggle"></div>
+                    <span>Report Safety Issue</span>
+                </div>
+                <div id="safetyContent" class="hidden">
+                    <div id="safetyIncidentsContainer">
+                        <!-- First incident -->
+                        <div class="safety-incident" data-incident="0">
+                            <h3 style="color: #d83b01; margin: 20px 0 10px 0;">Incident #1</h3>
+                            <div class="form-group">
+                                <label>Incident Description</label>
+                                <textarea class="safety-notes" placeholder="e.g., Forklift hit wall in warehouse..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Upload Images (click to select or paste images below)</label>
+                                <input type="file" class="safety-image-upload" multiple accept="image/*" style="margin-bottom: 10px;">
+                                <div class="safety-paste-area" style="border: 2px dashed #d83b01; padding: 20px; text-align: center; cursor: pointer; background: #fff5f5;">
+                                    <p style="color: #d83b01; margin: 0;">Click here and press Ctrl+V to paste images</p>
+                                </div>
+                                <div class="safety-images-preview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+                            </div>
+                            <hr style="margin: 20px 0; border-color: #eee;">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="addSafetyIncident()" style="background: #d83b01;">+ Add Another Safety Incident</button>
+                </div>
+            </div>
+            
+            <!-- Yield Report Section -->
+            <div class="section">
+                <h2>Yield Report</h2>
+                <div id="pasteArea" class="paste-area" tabindex="0">
+                    <input type="file" id="yieldImageUpload" accept="image/*" capture="environment" style="display: none;">
+                    <p class="paste-instructions">Click to upload/take photo or press Ctrl+V to paste</p>
+                    <p style="color: #666; margin-top: 10px;">📷 Tap to use camera on mobile</p>
+                </div>
+                
+                <!-- Exact table format as requested -->
+                <table class="yield-table">
+                    <thead>
+                        <tr>
+                            <th class="quantity-column">Quantity</th>
+                            <th>Scrap Analysis</th>
+                            <th>Root Cause Analysis</th>
+                        </tr>
+                    </thead>
+                    <tbody id="yieldTableBody">
+                        <!-- Default 3 rows -->
+                        <tr>
+                            <td class="quantity-column"><input type="number" class="quantity-input" value=""></td>
+                            <td><textarea class="scrap-analysis" placeholder="e.g., Operator scrap button @ Post laminator Dumpster"></textarea></td>
+                            <td><textarea class="root-cause" placeholder="e.g., Broken Plate on the line"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="quantity-column"><input type="number" class="quantity-input" value=""></td>
+                            <td><textarea class="scrap-analysis"></textarea></td>
+                            <td><textarea class="root-cause"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td class="quantity-column"><input type="number" class="quantity-input" value=""></td>
+                            <td><textarea class="scrap-analysis"></textarea></td>
+                            <td><textarea class="root-cause"></textarea></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-primary add-row-btn" onclick="addYieldRow()">+ Add Row</button>
+            </div>
+            
+            <!-- Pass Down Summary with CVS/Section -->
+            <div class="section">
+                <h2>Pass Down Summary</h2>
+                <button type="button" class="btn btn-primary" onclick="loadTestData()" style="margin-bottom: 20px;">
+                    📊 Load Test Equipment Data (Simulates your 3,770 items)
+                </button>
+                <div id="loadStatus" style="display: none; padding: 10px; background: #e3f2fd; border-radius: 4px; margin-bottom: 20px;">
+                    <span id="loadingMessage">Loading equipment data...</span>
+                </div>
+                
+                <div id="passDownContainer">
+                    <div class="pass-down-item" data-index="0">
+                        <!-- Equipment Selection Section -->
+                        <div class="equipment-selection-box">
+                            <h4>🔧 Equipment Selection</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Select CVS Unit</label>
+                                    <select class="cvs-select" onchange="updateSections(this)">
+                                        <option value="">Choose CVS...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Select Section</label>
+                                    <select class="section-select" onchange="populateEquipmentDetails(this)" disabled>
+                                        <option value="">Select CVS first...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Alternative: Type to Search -->
+                            <div class="form-group" style="margin-top: 20px;">
+                                <label>🔍 Quick Search (Type CVS or Section)</label>
+                                <div class="autocomplete-container">
+                                    <input type="text" 
+                                           class="equipment-search" 
+                                           placeholder="e.g., CVS47 or N023..."
+                                           onkeyup="searchEquipment(this)"
+                                           autocomplete="off"
+                                           style="border: 2px solid #bee5eb;">
+                                    <div class="autocomplete-results"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="section-divider">
+                        
+                        <!-- Auto-populated Information -->
+                        <div class="auto-populated-section">
+                            <div class="section-label">📋 Auto-Generated Information</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Plant</label>
+                                    <input type="text" class="plant" value="PGT3" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>CVS</label>
+                                    <input type="text" class="cvs-display" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Section</label>
+                                    <input type="text" class="section-display" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Item #</label>
+                                    <input type="text" class="item-number" placeholder="Auto-generated" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Issue Details -->
+                        <div class="issue-details-section">
+                            <div class="section-label">⚠️ Issue Details</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Ticket # (from Azure)</label>
+                                    <input type="text" class="ticket-number" placeholder="e.g., 193034">
+                                </div>
+                                <div class="form-group">
+                                    <label>Issue Summary</label>
+                                    <input type="text" class="issue-summary" placeholder="e.g., VTD D Exit Plates Stopping On The Line Between Sections">
+                                </div>
+                                <div class="form-group">
+                                    <label>Priority</label>
+                                    <select class="priority">
+                                        <option value="low">🟢 Low</option>
+                                        <option value="medium">🟡 Medium</option>
+                                        <option value="high">🟠 High</option>
+                                        <option value="critical">🔴 Critical</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select class="status">
+                                        <option>Open</option>
+                                        <option>In Progress</option>
+                                        <option>Monitoring</option>
+                                        <option>Closed</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid" style="margin-top: 20px;">
+                                <div class="form-group">
+                                    <label>Details</label>
+                                    <textarea class="details" rows="3" placeholder="e.g., MET reported plates stopping on the line and causing a backup"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Resolution</label>
+                                    <textarea class="resolution" rows="3" placeholder="e.g., Cleaned sensors and started the line back up, monitoring for about 20 minutes without faults"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px; padding: 10px; background: #e7f3ff; border-radius: 4px; font-size: 13px; color: #004085;">
+                                💡 <strong>Future Integration:</strong> Azure ticket numbers will auto-populate details when available
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-row-btn" onclick="addPassDownItem()">
+                    ➕ Add Another Item
+                </button>
+            </div>
+            
+            <!-- Additional Activities Section -->
+            <div class="section">
+                <h2>Additional Activities:</h2>
+                <table class="activities-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 12%;">Date</th>
+                            <th style="width: 18%;">Name</th>
+                            <th style="width: 35%;">Activity</th>
+                            <th style="width: 12%;">Time Start</th>
+                            <th style="width: 12%;">Time End</th>
+                            <th style="width: 8%;">Total Hours</th>
+                            <th style="width: 3%;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activitiesTableBody">
+                        <!-- Default first row -->
+                        <tr>
+                            <td><input type="date" class="activity-date" value=""></td>
+                            <td>
+                                <select class="activity-name">
+                                    <option value="">Select Name</option>
+                                    <option value="Scott Campbell">Scott Campbell</option>
+                                    <option value="Connor">Connor</option>
+                                    <option value="Mike">Mike</option>
+                                    <option value="Sarah">Sarah</option>
+                                    <option value="John">John</option>
+                                </select>
+                            </td>
+                            <td><textarea class="activity-description" rows="2" placeholder="e.g., Line Walk, Checked camera, Report" oninput="autoExpandTextarea(this)"></textarea></td>
+                            <td><input type="time" class="activity-start"></td>
+                            <td><input type="time" class="activity-end"></td>
+                            <td><input type="number" class="activity-hours" step="0.5" placeholder="0.0" readonly style="background: #f0f0f0;"></td>
+                            <td><button type="button" class="btn-remove" onclick="removeActivityRow(this)" style="visibility: hidden;">×</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-primary add-row-btn" onclick="addActivityRow()" style="margin-top: 10px;">
+                    + Add Activity
+                </button>
+            </div>
+            
+            <!-- Line Walk Section -->
+            <div class="section">
+                <h2>Line Walk Map and Schedule:</h2>
+                
+                <!-- Map Image -->
+                <div class="line-walk-map" style="margin-bottom: 20px;">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" 
+                         alt="Line Walk Map" 
+                         id="lineWalkMapImage"
+                         style="width: 100%; max-width: 800px; border: 2px solid #ddd; border-radius: 4px;">
+                    <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                        📍 Plant Layout Map - Zones 1-6 marked for line walks
+                    </p>
+                </div>
+                
+                <!-- Zone Schedule -->
+                <div style="background: #f0f8ff; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                    <h3 style="margin-bottom: 15px;">Today's Line Walk Assignment:</h3>
+                    
+                    <div style="background: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #bee5eb;">
+                        <p style="margin: 0; color: #004085;">
+                            📋 <strong>Manager's Line Walk System:</strong> Select your assigned zone below to see detailed inspection areas.
+                        </p>
+                    </div>
+                    
+                    <!-- Zone and Section Selection -->
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #0056b3;">Select Zone</label>
+                            <select id="zoneSelect" onchange="updateSectionOptions()" style="font-size: 16px;">
+                                <option value="">Choose Zone...</option>
+                                <option value="1">Zone 1</option>
+                                <option value="2">Zone 2</option>
+                                <option value="3">Zone 3</option>
+                                <option value="4">Zone 4</option>
+                                <option value="5">Zone 5</option>
+                                <option value="6">Zone 6</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: #0056b3;">Select Section</label>
+                            <select id="sectionSelect" onchange="showInspectionOptions()" disabled>
+                                <option value="">Select Zone first...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Inspection Type Selection -->
+                    <div id="inspectionTypeDiv" style="display: none; margin-top: 20px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #0056b3;">
+                        <h4 id="sectionTitle" style="color: #0056b3; margin-bottom: 15px;"></h4>
+                        <p id="sectionDetails" style="margin-bottom: 15px;"></p>
+                        
+                        <div style="display: flex; gap: 20px; justify-content: center;">
+                            <button type="button" class="btn btn-primary" onclick="showEquipmentList('conveyor')" style="padding: 20px 40px; font-size: 18px;">
+                                🏭 Inspect Conveyors
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="showEquipmentList('robot')" style="padding: 20px 40px; font-size: 18px;">
+                                🤖 Inspect Robots
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Equipment Checklist -->
+                    <div id="equipmentChecklist" style="display: none; margin-top: 20px; padding: 20px; background: white; border-radius: 8px;">
+                        <h4 id="checklistTitle" style="margin-bottom: 15px;"></h4>
+                        <div id="checklistItems" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Dynamically populated checklist -->
+                        </div>
+                        <div style="margin-top: 20px; text-align: center;">
+                            <button type="button" class="btn btn-secondary" onclick="backToTypeSelection()">
+                                ← Back to Selection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Line Walk Findings -->
+                <div>
+                    <h3>Findings:</h3>
+                    <table class="findings-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 12%;">Date</th>
+                                <th style="width: 15%;">Name</th>
+                                <th style="width: 15%;">Area</th>
+                                <th style="width: 20%;">Equipment</th>
+                                <th style="width: 28%;">Finding</th>
+                                <th style="width: 10%;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="findingsTableBody">
+                            <!-- Default empty row -->
+                            <tr>
+                                <td><input type="date" class="finding-date" value=""></td>
+                                <td>
+                                    <select class="finding-name">
+                                        <option value="">Select Name</option>
+                                        <option value="Scott">Scott</option>
+                                        <option value="Connor">Connor</option>
+                                        <option value="Mike">Mike</option>
+                                        <option value="Sarah">Sarah</option>
+                                    </select>
+                                </td>
+                                <td><input type="text" class="finding-area" placeholder="e.g., Zone 1"></td>
+                                <td><input type="text" class="finding-equipment" placeholder="e.g., RGL A"></td>
+                                <td><textarea class="finding-description" rows="1" placeholder="e.g., Excessive broken glass" oninput="autoExpandTextarea(this)"></textarea></td>
+                                <td>
+                                    <select class="finding-status">
+                                        <option>Open</option>
+                                        <option>In Progress</option>
+                                        <option>Closed</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-primary add-row-btn" onclick="addFindingRow()" style="margin-top: 10px;">
+                        + Add Finding
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Screenshot Sections -->
+            <div class="section">
+                <h2>MH Downtime Review:</h2>
+                <div class="paste-area screenshot-paste" id="mhDowntimePaste" tabindex="0">
+                    <input type="file" id="mhDowntimeUpload" accept="image/*" capture="environment" style="display: none;">
+                    <p class="paste-instructions">Click to upload/take photo or press Ctrl+V to paste</p>
+                    <p style="color: #666; margin-top: 10px;">📷 Tap to use camera on mobile</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>4CBGD Broken</h2>
+                <div class="paste-area screenshot-paste" id="cbgdPaste" tabindex="0">
+                    <input type="file" id="cbgdUpload" accept="image/*" capture="environment" style="display: none;">
+                    <p class="paste-instructions">Click to upload/take photo or press Ctrl+V to paste</p>
+                    <p style="color: #666; margin-top: 10px;">📷 Tap to use camera on mobile</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Worst performing BCR</h2>
+                <div class="paste-area screenshot-paste" id="bcrPaste" tabindex="0">
+                    <input type="file" id="bcrUpload" accept="image/*" capture="environment" style="display: none;">
+                    <p class="paste-instructions">Click to upload/take photo or press Ctrl+V to paste</p>
+                    <p style="color: #666; margin-top: 10px;">📷 Tap to use camera on mobile</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>SGV Status Report</h2>
+                <div class="paste-area screenshot-paste" id="sgvPaste" tabindex="0">
+                    <input type="file" id="sgvUpload" accept="image/*" capture="environment" style="display: none;">
+                    <p class="paste-instructions">Click to upload/take photo or press Ctrl+V to paste</p>
+                    <p style="color: #666; margin-top: 10px;">📷 Tap to use camera on mobile</p>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="button" class="btn btn-success" onclick="submitTest()">Submit Report to SharePoint</button>
+        </form>
+    </div>
+    
+    <script>
+        // Initialize date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        document.getElementById('reportDate').valueAsDate = new Date();
+        
+        // Safety toggle functionality
+        document.getElementById('safetyToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('safetyContent').classList.toggle('hidden');
+        });
+        
+        // Safety incident counter
+        let safetyIncidentCount = 1;
+        
+        // Add safety incident
+        function addSafetyIncident() {
+            safetyIncidentCount++;
+            const container = document.getElementById('safetyIncidentsContainer');
+            const newIncident = document.createElement('div');
+            newIncident.className = 'safety-incident';
+            newIncident.setAttribute('data-incident', safetyIncidentCount - 1);
+            newIncident.innerHTML = `
+                <h3 style="color: #d83b01; margin: 20px 0 10px 0;">Incident #${safetyIncidentCount}</h3>
+                <div class="form-group">
+                    <label>Incident Description</label>
+                    <textarea class="safety-notes" placeholder="e.g., Water line break in production area..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Upload Images (click to select or paste images below)</label>
+                    <input type="file" class="safety-image-upload" multiple accept="image/*" style="margin-bottom: 10px;">
+                    <div class="safety-paste-area" style="border: 2px dashed #d83b01; padding: 20px; text-align: center; cursor: pointer; background: #fff5f5;">
+                        <p style="color: #d83b01; margin: 0;">Click here and press Ctrl+V to paste images</p>
+                    </div>
+                    <div class="safety-images-preview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+                </div>
+                <hr style="margin: 20px 0; border-color: #eee;">
+            `;
+            container.appendChild(newIncident);
+            setupSafetyImageHandlers(newIncident);
+        }
+        
+        // Setup image handlers for safety incidents
+        function setupSafetyImageHandlers(incident) {
+            const fileInput = incident.querySelector('.safety-image-upload');
+            const pasteArea = incident.querySelector('.safety-paste-area');
+            const preview = incident.querySelector('.safety-images-preview');
+            
+            // File upload
+            fileInput.addEventListener('change', function(e) {
+                handleSafetyImages(e.target.files, preview);
+            });
+            
+            // Click to focus for paste
+            pasteArea.addEventListener('click', function() {
+                this.focus();
+            });
+            
+            // Paste handler
+            pasteArea.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const items = e.clipboardData.items;
+                const files = [];
+                
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        files.push(items[i].getAsFile());
+                    }
+                }
+                
+                if (files.length > 0) {
+                    handleSafetyImages(files, preview);
+                }
+            });
+            
+            // Make paste area focusable
+            pasteArea.setAttribute('tabindex', '0');
+        }
+        
+        // Handle safety images
+        function handleSafetyImages(files, previewContainer) {
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const container = document.createElement('div');
+                    container.className = 'image-container';
+                    container.style.position = 'relative';
+                    container.style.display = 'inline-block';
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.onclick = function() {
+                        window.open(this.src, '_blank');
+                    };
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-image';
+                    removeBtn.textContent = '×';
+                    removeBtn.onclick = function() {
+                        container.remove();
+                    };
+                    
+                    container.appendChild(img);
+                    container.appendChild(removeBtn);
+                    previewContainer.appendChild(container);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Initialize first safety incident handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstIncident = document.querySelector('.safety-incident');
+            if (firstIncident) {
+                setupSafetyImageHandlers(firstIncident);
+            }
+        });
+        
+        // Initialize file upload handlers when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Yield Report image functionality
+            const pasteArea = document.getElementById('pasteArea');
+            const yieldImageUpload = document.getElementById('yieldImageUpload');
+            
+            // Click to upload for yield chart
+            pasteArea.addEventListener('click', function(e) {
+                e.stopPropagation();
+                yieldImageUpload.click();
+            });
+            
+            // Handle file upload for yield chart
+            yieldImageUpload.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        window.pastedImageData = event.target.result;
+                        pasteArea.innerHTML = `<img src="${event.target.result}" alt="Yield Chart" style="max-width: 100%; height: auto;">`;
+                        pasteArea.classList.add('has-image');
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // Setup all screenshot areas
+            const screenshotConfigs = [
+                { areaId: 'mhDowntimePaste', inputId: 'mhDowntimeUpload' },
+                { areaId: 'cbgdPaste', inputId: 'cbgdUpload' },
+                { areaId: 'bcrPaste', inputId: 'bcrUpload' },
+                { areaId: 'sgvPaste', inputId: 'sgvUpload' }
+            ];
+            
+            screenshotConfigs.forEach(config => {
+                const area = document.getElementById(config.areaId);
+                const input = document.getElementById(config.inputId);
+                
+                if (area && input) {
+                    // Remove any existing listeners
+                    area.replaceWith(area.cloneNode(true));
+                    const newArea = document.getElementById(config.areaId);
+                    
+                    // Add click handler
+                    newArea.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        console.log('Clicking file input:', config.inputId);
+                        input.click();
+                    });
+                    
+                    // Add file change handler
+                    input.addEventListener('change', function(e) {
+                        if (e.target.files && e.target.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                newArea.innerHTML = `<img src="${event.target.result}" alt="Screenshot" style="max-width: 100%; height: auto;">`;
+                                newArea.classList.add('has-image');
+                            };
+                            reader.readAsDataURL(e.target.files[0]);
+                        }
+                    });
+                }
+            });
+            
+            // Initialize first safety incident handlers
+            const firstIncident = document.querySelector('.safety-incident');
+            if (firstIncident) {
+                setupSafetyImageHandlers(firstIncident);
+            }
+            
+            // Initialize time calculation on existing rows
+            document.querySelectorAll('.activity-start, .activity-end').forEach(input => {
+                input.addEventListener('change', function() {
+                    calculateHours(this);
+                });
+            });
+            
+            // Set initial date for findings
+            const findingDates = document.querySelectorAll('.finding-date');
+            const reportDate = document.getElementById('reportDate').value;
+            findingDates.forEach(input => {
+                input.value = reportDate;
+            });
+        });
+        
+        // Global variable for yield image data
+        window.pastedImageData = null;
+        
+        // Handle paste events for all image areas
+        document.addEventListener('paste', function(e) {
+            e.preventDefault();
+            
+            // Find which element has focus
+            const activeElement = document.activeElement;
+            let targetArea = null;
+            
+            // Check if focused element is a paste area
+            if (activeElement.id === 'pasteArea' || 
+                activeElement.id === 'mhDowntimePaste' || 
+                activeElement.id === 'cbgdPaste' || 
+                activeElement.id === 'bcrPaste' || 
+                activeElement.id === 'sgvPaste') {
+                targetArea = activeElement;
+            } else if (activeElement.classList.contains('safety-paste-area')) {
+                // Handle safety paste areas
+                const preview = activeElement.nextElementSibling;
+                if (preview && preview.classList.contains('safety-images-preview')) {
+                    handleSafetyPaste(e, preview);
+                    return;
+                }
+            }
+            
+            // If we found a target area, handle the paste
+            if (targetArea && e.clipboardData && e.clipboardData.items) {
+                const items = e.clipboardData.items;
+                
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        const blob = items[i].getAsFile();
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(event) {
+                            const imageData = event.target.result;
+                            targetArea.innerHTML = `<img src="${imageData}" alt="Pasted Image" style="max-width: 100%; height: auto;">`;
+                            targetArea.classList.add('has-image');
+                            
+                            // Store yield chart data separately
+                            if (targetArea.id === 'pasteArea') {
+                                window.pastedImageData = imageData;
+                            }
+                        };
+                        
+                        reader.readAsDataURL(blob);
+                        break;
+                    }
+                }
+            }
+        });
+        
+        // Handle safety paste separately
+        function handleSafetyPaste(e, previewContainer) {
+            if (e.clipboardData && e.clipboardData.items) {
+                const items = e.clipboardData.items;
+                const files = [];
+                
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf('image') !== -1) {
+                        files.push(items[i].getAsFile());
+                    }
+                }
+                
+                if (files.length > 0) {
+                    handleSafetyImages(files, previewContainer);
+                }
+            }
+        }
+        
+        // Add yield row
+        function addYieldRow() {
+            const tbody = document.getElementById('yieldTableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td class="quantity-column"><input type="number" class="quantity-input"></td>
+                <td><textarea class="scrap-analysis"></textarea></td>
+                <td><textarea class="root-cause"></textarea></td>
+            `;
+            tbody.appendChild(newRow);
+        }
+        
+        // Equipment database
+        let equipmentDatabase = [];
+        let cvsToSections = {};
+        
+        // Common resolutions
+        const commonResolutions = {
+            alarm: [
+                "Reset alarm and monitor for recurrence",
+                "Check sensor connections and recalibrate",
+                "Replace faulty sensor",
+                "Update control parameters"
+            ],
+            broken: [
+                "Part ordered - ETA pending",
+                "Temporary repair applied",
+                "Equipment taken offline for repair",
+                "Replaced with spare part"
+            ],
+            quality: [
+                "Process parameters adjusted",
+                "Material batch quarantined",
+                "Calibration performed",
+                "Operator retrained on procedure"
+            ],
+            maintenance: [
+                "Preventive maintenance completed",
+                "Lubrication performed",
+                "Filters replaced",
+                "Scheduled for next maintenance window"
+            ]
+        };
+        
+        // Load test data
+        function loadTestData() {
+            const statusDiv = document.getElementById('loadStatus');
+            const message = document.getElementById('loadingMessage');
+            statusDiv.style.display = 'block';
+            
+            // Simulate loading your CVS data
+            setTimeout(() => {
+                // Generate test data matching your structure
+                for (let cvs = 1; cvs <= 125; cvs++) {
+                    const cvsName = `CVS${String(cvs).padStart(2, '0')}`;
+                    cvsToSections[cvsName] = [];
+                    
+                    // Add various sections per CVS
+                    const sectionCount = Math.floor(Math.random() * 30) + 10;
+                    for (let s = 0; s < sectionCount; s++) {
+                        const prefix = Math.random() > 0.5 ? 'N' : 'E';
+                        const sectionNum = String(s + 1).padStart(3, '0');
+                        const section = `${prefix}${sectionNum}  `; // Note the spaces like in your data
+                        
+                        equipmentDatabase.push({
+                            plant: 'PGT3',
+                            cvs: cvsName,
+                            section: section
+                        });
+                        
+                        cvsToSections[cvsName].push(section);
+                    }
+                }
+                
+                populateCVSDropdowns();
+                
+                message.innerHTML = `✅ Loaded ${equipmentDatabase.length} test equipment mappings! ${Object.keys(cvsToSections).length} CVS units available.`;
+                message.style.color = '#107c10';
+                
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            }, 1000);
+        }
+        
+        // Populate CVS dropdowns
+        function populateCVSDropdowns() {
+            const cvsSelects = document.querySelectorAll('.cvs-select');
+            const sortedCVS = Object.keys(cvsToSections).sort();
+            
+            cvsSelects.forEach(select => {
+                const firstOption = select.options[0];
+                select.innerHTML = '';
+                select.appendChild(firstOption);
+                
+                sortedCVS.forEach(cvs => {
+                    const option = document.createElement('option');
+                    option.value = cvs;
+                    option.textContent = `${cvs} (${cvsToSections[cvs].length} sections)`;
+                    select.appendChild(option);
+                });
+            });
+        }
+        
+        // Update sections when CVS selected
+        function updateSections(cvsSelect) {
+            const container = cvsSelect.closest('.pass-down-item');
+            const sectionSelect = container.querySelector('.section-select');
+            const selectedCVS = cvsSelect.value;
+            
+            if (selectedCVS) {
+                sectionSelect.disabled = false;
+                sectionSelect.innerHTML = '<option value="">Select Section...</option>';
+                
+                const sections = cvsToSections[selectedCVS] || [];
+                const uniqueSections = [...new Set(sections)].sort();
+                
+                uniqueSections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section;
+                    option.textContent = section.trim();
+                    sectionSelect.appendChild(option);
+                });
+                
+                container.querySelector('.cvs-display').value = selectedCVS;
+            } else {
+                sectionSelect.disabled = true;
+                sectionSelect.innerHTML = '<option value="">Select CVS first...</option>';
+                container.querySelector('.cvs-display').value = '';
+            }
+        }
+        
+        // Populate equipment details
+        function populateEquipmentDetails(sectionSelect) {
+            const container = sectionSelect.closest('.pass-down-item');
+            const cvs = container.querySelector('.cvs-select').value;
+            const section = sectionSelect.value;
+            
+            if (section) {
+                container.querySelector('.section-display').value = section;
+                
+                const timestamp = Date.now();
+                const itemNumber = `PD-${cvs}-${section.trim()}-${timestamp.toString().slice(-6)}`;
+                container.querySelector('.item-number').value = itemNumber;
+                
+                // Highlight
+                ['.cvs-display', '.section-display', '.item-number'].forEach(selector => {
+                    const field = container.querySelector(selector);
+                    field.style.animation = 'highlight 1s ease';
+                });
+            }
+        }
+        
+        // Search equipment
+        function searchEquipment(input) {
+            const searchTerm = input.value.toLowerCase();
+            const resultsContainer = input.nextElementSibling;
+            
+            if (searchTerm.length < 2) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            
+            const results = equipmentDatabase.filter(item => {
+                const searchString = `${item.cvs} ${item.section}`.toLowerCase();
+                return searchString.includes(searchTerm);
+            }).slice(0, 15);
+            
+            if (results.length > 0) {
+                resultsContainer.innerHTML = results.map((item, index) => `
+                    <div class="autocomplete-item" 
+                         onclick="selectEquipment(this, '${item.cvs}', '${item.section}')"
+                         data-index="${index}">
+                        <strong>${item.cvs}</strong> - Section: ${item.section.trim()}
+                        <div class="autocomplete-details">
+                            Plant: ${item.plant}
+                        </div>
+                    </div>
+                `).join('');
+                resultsContainer.style.display = 'block';
+            } else {
+                resultsContainer.innerHTML = '<div class="autocomplete-item">No matches found</div>';
+                resultsContainer.style.display = 'block';
+            }
+        }
+        
+        // Select equipment from search
+        function selectEquipment(element, cvs, section) {
+            const container = element.closest('.pass-down-item');
+            
+            const cvsSelect = container.querySelector('.cvs-select');
+            cvsSelect.value = cvs;
+            updateSections(cvsSelect);
+            
+            setTimeout(() => {
+                const sectionSelect = container.querySelector('.section-select');
+                sectionSelect.value = section;
+                populateEquipmentDetails(sectionSelect);
+            }, 100);
+            
+            element.parentElement.style.display = 'none';
+            container.querySelector('.equipment-search').value = `${cvs} - ${section.trim()}`;
+        }
+        
+        // Add pass down item
+        function addPassDownItem() {
+            const container = document.getElementById('passDownContainer');
+            const items = container.querySelectorAll('.pass-down-item');
+            const newItem = items[0].cloneNode(true);
+            
+            newItem.querySelectorAll('input, textarea, select').forEach(el => {
+                if (el.classList.contains('plant')) {
+                    el.value = 'PGT3';
+                } else {
+                    el.value = '';
+                }
+            });
+            
+            const sectionSelect = newItem.querySelector('.section-select');
+            sectionSelect.disabled = true;
+            sectionSelect.innerHTML = '<option value="">Select CVS first...</option>';
+            
+            container.appendChild(newItem);
+        }
+        
+        // Auto-expand textarea as user types
+        function autoExpandTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+        
+        // Initialize auto-expand on all activity textareas
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('activity-description')) {
+                autoExpandTextarea(e.target);
+            }
+        });
+        
+        // Remove activity row
+        function removeActivityRow(button) {
+            const tbody = document.getElementById('activitiesTableBody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            // Only remove if more than one row
+            if (rows.length > 1) {
+                button.closest('tr').remove();
+            }
+        }
+        
+        // Add activity row
+        function addActivityRow() {
+            const tbody = document.getElementById('activitiesTableBody');
+            const newRow = document.createElement('tr');
+            const today = document.getElementById('reportDate').value;
+            const rows = tbody.querySelectorAll('tr');
+            
+            newRow.innerHTML = `
+                <td><input type="date" class="activity-date" value="${today}"></td>
+                <td>
+                    <select class="activity-name">
+                        <option value="">Select Name</option>
+                        <option value="Scott Campbell">Scott Campbell</option>
+                        <option value="Connor">Connor</option>
+                        <option value="Mike">Mike</option>
+                        <option value="Sarah">Sarah</option>
+                        <option value="John">John</option>
+                    </select>
+                </td>
+                <td><textarea class="activity-description" rows="2" placeholder="e.g., Line Walk, Checked camera, Report" oninput="autoExpandTextarea(this)"></textarea></td>
+                <td><input type="time" class="activity-start" onchange="calculateHours(this)"></td>
+                <td><input type="time" class="activity-end" onchange="calculateHours(this)"></td>
+                <td><input type="number" class="activity-hours" step="0.5" placeholder="0.0" readonly style="background: #f0f0f0;"></td>
+                <td><button type="button" class="btn-remove" onclick="removeActivityRow(this)" ${rows.length === 0 ? 'style="visibility: hidden;"' : ''}>×</button></td>
+            `;
+            
+            tbody.appendChild(newRow);
+            
+            // Make first row's button visible if this is the second row
+            if (rows.length === 1) {
+                const firstRowBtn = rows[0].querySelector('.btn-remove');
+                if (firstRowBtn) {
+                    firstRowBtn.style.visibility = 'visible';
+                }
+            }
+        }
+        
+        // Calculate hours between start and end time
+        function calculateHours(input) {
+            const row = input.closest('tr');
+            const startInput = row.querySelector('.activity-start');
+            const endInput = row.querySelector('.activity-end');
+            const hoursInput = row.querySelector('.activity-hours');
+            
+            if (startInput.value && endInput.value) {
+                const start = new Date(`2000-01-01T${startInput.value}`);
+                const end = new Date(`2000-01-01T${endInput.value}`);
+                
+                let diff = (end - start) / (1000 * 60 * 60); // Convert to hours
+                
+                // Handle crossing midnight
+                if (diff < 0) {
+                    diff += 24;
+                }
+                
+                // Round to nearest 0.5
+                hoursInput.value = Math.round(diff * 2) / 2;
+            }
+        }
+        
+        // Initialize time calculation on existing rows
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.activity-start, .activity-end').forEach(input => {
+                input.addEventListener('change', function() {
+                    calculateHours(this);
+                });
+            });
+        });
+        
+        // Line walk zone and section data
+        const zoneData = {
+            1: {
+                sections: [
+                    { 
+                        id: 1, 
+                        name: "Section 1", 
+                        range: "CVS001 to CVS10/98",
+                        conveyors: ["CVS 1", "CVS 2", "CVS 3", "CVS 4", "CVS 5", "CVS 6", "CVS 7", "CVS 8", "CVS 9", "CVS 10", "CVS 98"],
+                        robots: ["RGL A", "RGL B", "RGL C", "RGL D", "RGL E", "FS 50 ROBOT 1", "FS 50 ROBOT 2", "FS 100 ROBOT 1", "FS 100 ROBOT 2", "FS 100 ROBOT 3"]
+                    },
+                    { 
+                        id: 2, 
+                        name: "Section 2", 
+                        range: "CVS10 to CVS18",
+                        conveyors: ["CVS 10", "CVS 11", "CVS 12", "CVS 13", "CVS 14", "CVS 15", "CVS 16", "CVS 17", "CVS 18"],
+                        robots: ["Robot Station A", "Robot Station B", "Robot Station C"]
+                    }
+                ]
+            },
+            2: {
+                sections: [
+                    { 
+                        id: 1, 
+                        name: "Section 1", 
+                        range: "CVS19 to CVS30",
+                        conveyors: ["CVS 19", "CVS 20", "CVS 21", "CVS 22", "CVS 23", "CVS 24", "CVS 25", "CVS 26", "CVS 27", "CVS 28", "CVS 29", "CVS 30"],
+                        robots: ["Zone 2 Robot 1", "Zone 2 Robot 2", "Zone 2 Robot 3"]
+                    }
+                ]
+            }
+            // Add more zones as needed
+        };
+        
+        // Update section options when zone changes
+        function updateSectionOptions() {
+            const zone = document.getElementById('zoneSelect').value;
+            const sectionSelect = document.getElementById('sectionSelect');
+            const inspectionDiv = document.getElementById('inspectionTypeDiv');
+            const checklistDiv = document.getElementById('equipmentChecklist');
+            
+            // Hide subsequent divs
+            inspectionDiv.style.display = 'none';
+            checklistDiv.style.display = 'none';
+            
+            if (zone && zoneData[zone]) {
+                sectionSelect.disabled = false;
+                sectionSelect.innerHTML = '<option value="">Select Section...</option>';
+                
+                zoneData[zone].sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section.id;
+                    option.textContent = `${section.name} (${section.range})`;
+                    sectionSelect.appendChild(option);
+                });
+            } else {
+                sectionSelect.disabled = true;
+                sectionSelect.innerHTML = '<option value="">Select Zone first...</option>';
+            }
+        }
+        
+        // Show inspection type options
+        function showInspectionOptions() {
+            const zone = document.getElementById('zoneSelect').value;
+            const sectionId = document.getElementById('sectionSelect').value;
+            const inspectionDiv = document.getElementById('inspectionTypeDiv');
+            const checklistDiv = document.getElementById('equipmentChecklist');
+            
+            if (zone && sectionId && zoneData[zone]) {
+                const section = zoneData[zone].sections.find(s => s.id == sectionId);
+                if (section) {
+                    document.getElementById('sectionTitle').textContent = `Zone ${zone} ${section.name}`;
+                    document.getElementById('sectionDetails').textContent = `Equipment range: ${section.range}`;
+                    inspectionDiv.style.display = 'block';
+                    checklistDiv.style.display = 'none';
+                }
+            }
+        }
+        
+        // Show equipment checklist
+        function showEquipmentList(type) {
+            const zone = document.getElementById('zoneSelect').value;
+            const sectionId = document.getElementById('sectionSelect').value;
+            const checklistDiv = document.getElementById('equipmentChecklist');
+            const checklistTitle = document.getElementById('checklistTitle');
+            const checklistItems = document.getElementById('checklistItems');
+            
+            if (zone && sectionId && zoneData[zone]) {
+                const section = zoneData[zone].sections.find(s => s.id == sectionId);
+                if (section) {
+                    const equipment = type === 'conveyor' ? section.conveyors : section.robots;
+                    checklistTitle.textContent = type === 'conveyor' ? 
+                        `Conveyor Systems to Inspect:` : 
+                        `Robots to Inspect:`;
+                    
+                    checklistItems.innerHTML = '';
+                    equipment.forEach((item, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'checklist-item';
+                        div.innerHTML = `
+                            <input type="checkbox" id="check_${type}_${index}" class="equipment-check" data-equipment="${item}">
+                            <label for="check_${type}_${index}">${item}</label>
+                        `;
+                        checklistItems.appendChild(div);
+                    });
+                    
+                    document.getElementById('inspectionTypeDiv').style.display = 'none';
+                
