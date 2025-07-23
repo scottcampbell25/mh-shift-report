@@ -1930,4 +1930,49 @@
                     });
                     
                     document.getElementById('inspectionTypeDiv').style.display = 'none';
-                
+                    checklistDiv.style.display = 'block';
+                }
+            }
+        }
+
+        function backToTypeSelection() {
+            document.getElementById('equipmentChecklist').style.display = 'none';
+            document.getElementById('inspectionTypeDiv').style.display = 'block';
+        }
+
+        function addFindingRow() {
+            const tbody = document.getElementById('findingsTableBody');
+            const reportDate = document.getElementById('reportDate').value;
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="date" class="finding-date" value="${reportDate}"></td>
+                <td>
+                    <select class="finding-name">
+                        <option value="">Select Name</option>
+                        <option value="Scott">Scott</option>
+                        <option value="Connor">Connor</option>
+                        <option value="Mike">Mike</option>
+                        <option value="Sarah">Sarah</option>
+                    </select>
+                </td>
+                <td><input type="text" class="finding-area" placeholder="e.g., Zone 1"></td>
+                <td><input type="text" class="finding-equipment" placeholder="e.g., RGL A"></td>
+                <td><textarea class="finding-description" rows="1" placeholder="e.g., Excessive broken glass" oninput="autoExpandTextarea(this)"></textarea></td>
+                <td>
+                    <select class="finding-status">
+                        <option>Open</option>
+                        <option>In Progress</option>
+                        <option>Closed</option>
+                    </select>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+        }
+
+        function submitTest() {
+            document.getElementById('shiftReportForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
