@@ -901,7 +901,7 @@
             <div class="section">
                 <h2>Pass Down Summary</h2>
                 <button type="button" class="btn btn-primary" onclick="loadTestData()" style="margin-bottom: 20px;">
-                    📊 Load Test Equipment Data (Simulates your 3,770 items)
+                    📊 Load sample equipment data
                 </button>
                 <div id="loadStatus" style="display: none; padding: 10px; background: #e3f2fd; border-radius: 4px; margin-bottom: 20px;">
                     <span id="loadingMessage">Loading equipment data...</span>
@@ -1926,8 +1926,14 @@
                             <input type="checkbox" id="check_${type}_${index}" class="equipment-check" data-equipment="${item}">
                             <label for="check_${type}_${index}">${item}</label>
                         `;
-                        checklistItems.appendChild(div);
-                    });
-                    
-                    document.getElementById('inspectionTypeDiv').style.display = 'none';
-                
+                    checklistItems.appendChild(div);
+                });
+
+                document.getElementById('inspectionTypeDiv').style.display = 'none';
+                checklistDiv.style.display = 'block';
+            }
+        }
+    }
+    </script>
+</body>
+</html>
